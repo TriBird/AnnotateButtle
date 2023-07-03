@@ -7,7 +7,7 @@ using System;
 // using System.Text;
 using UnityEngine.UI;
 
-public class AppMaster : MonoBehaviour
+public class CGPMaster : MonoBehaviour
 {
     #region
     [System.Serializable]
