@@ -6,24 +6,33 @@ using System.IO;
 public class GameMaster : MonoBehaviour
 {
 
-
+    [System.Serializable]
     private class DataFrame{
-        public List<string> sentense;
-        public List<int> label;
-        public List<List<float>> embedding;
+        public Dataset[] datasets;
     }
 
-    private void OnLoad()
+    [System.Serializable]
+    public class Dataset{
+        public string text = "";
+        public int target = 0;
+        public float[] embed;
+    }
+
+    private List<Dataset> OnLoad()
     {
         string _dataPath = Path.Combine(Application.dataPath, "Resources\\datasets.json");
         
-        if (!File.Exists(_dataPath)) return;
+        if (!File.Exists(_dataPath)) return null;
 
         var json = File.ReadAllText(_dataPath);
         print(json);
         
-        var obj = JsonUtility.FromJson<DataFrame>(json);
-        print(obj);
+        DataFrame df = JsonUtility.FromJson<DataFrame>(json);
+        print(df.datasets[0].text);
+        print(df.datasets[0].target);
+        print(df.datasets[0].embed);
+
+        return null;
     }
 
     // Start is called before the first frame update
