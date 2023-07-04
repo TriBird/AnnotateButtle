@@ -77,6 +77,12 @@ public class GameMaster : MonoBehaviour
                 tmp.GetComponent<CardCtrl>().gm = this;
                 tmp.GetComponent<CardCtrl>().CardNumber = counter;
 
+                // isSelected...?
+                int number = CurrentPageIndex * 10 + counter;
+                if(annotater.Contains(number)){
+                    tmp.GetComponent<CardCtrl>().OnPointerClick(null);
+                }
+
                 counter++;
             }
         }
