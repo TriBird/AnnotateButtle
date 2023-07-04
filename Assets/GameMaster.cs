@@ -24,7 +24,7 @@ public class GameMaster : MonoBehaviour
     
     public GameObject SentenceCard_Prefab;
     public Transform SentenseBox_Trans;
-    public int PageIndex = 0;
+    public int CurrentPageIndex = 0;
 
     private List<Dataset> Datasets = new List<Dataset>();
 
@@ -35,10 +35,15 @@ public class GameMaster : MonoBehaviour
         SentenceUpdate();
     }
 
+    public void ChangePage(int n){
+        CurrentPageIndex = n;
+        SentenceUpdate();
+    }
+
     private void SentenceUpdate(){
         foreach(Transform tmp in SentenseBox_Trans){ Destroy(tmp.gameObject); }
         foreach(Dataset data in Datasets){
-            if(data.target == PageIndex){
+            if(data.target == CurrentPageIndex){
                 GameObject tmp = Instantiate(SentenceCard_Prefab, SentenseBox_Trans);
                 tmp.GetComponentInChildren<Text>().text = data.text;
             }
