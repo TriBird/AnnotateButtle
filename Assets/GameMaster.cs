@@ -39,14 +39,24 @@ public class GameMaster : MonoBehaviour
         SentenceUpdate();
     }
 
-    public void Annotate(int n){
+    public bool Annotate(int n){
         // limited annotate
-        if(annotater.Count >= 10) return;
+        if(annotater.Count >= 10) return false;
 
         // add annotate
         int number = CurrentPageIndex * 10 + n;
         if(!annotater.Contains(number)){
             annotater.Add(number);
+            AnnotationRemain.text = annotater.Count + "/10";
+        }
+
+        return true;
+    }
+
+    public void Annotate_del(int n){
+        int number = CurrentPageIndex * 10 + n;
+        if(annotater.Contains(number)){
+            annotater.Remove(number);
             AnnotationRemain.text = annotater.Count + "/10";
         }
     }

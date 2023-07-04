@@ -1277,6 +1277,7 @@ MonoBehaviour:
   SentenseBox_Trans: {fileID: 1390023726}
   DragObj_Trans: {fileID: 1685910631}
   annofield_ctrl: {fileID: 1208537227}
+  AnnotationRemain: {fileID: 1844128126}
   CurrentPageIndex: 0
 --- !u!1001 &727354473
 PrefabInstance:
@@ -2066,6 +2067,7 @@ GameObject:
   - component: {fileID: 1685910632}
   - component: {fileID: 1685910635}
   - component: {fileID: 1685910634}
+  - component: {fileID: 1685910636}
   m_Layer: 5
   m_Name: DragObj
   m_TagString: Untagged
@@ -2169,6 +2171,27 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 500, y: 128}
   m_EdgeRadius: 0
+--- !u!50 &1685910636
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685910630}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 7
 --- !u!1 &1767159789
 GameObject:
   m_ObjectHideFlags: 0
