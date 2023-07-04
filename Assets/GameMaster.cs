@@ -21,18 +21,34 @@ public class GameMaster : MonoBehaviour
         public float[] embed;
     }
 
-    
     public GameObject SentenceCard_Prefab;
-    public Transform SentenseBox_Trans;
+    public Transform SentenseBox_Trans, DragObj_Trans;
+    public AnnoFieldCtrl annofield_ctrl;
+    public Text AnnotationRemain;
+    
     public int CurrentPageIndex = 0;
 
+    private List<int> annotater = new List<int>();
     private List<Dataset> Datasets = new List<Dataset>();
 
     // Start is called before the first frame update
     void Start()
     {
+        AnnotationRemain.text = annotater.Count + "/10";
         Datasets = OnLoad();
         SentenceUpdate();
+    }
+
+    public void Annotate(int n){
+        // limited annotate
+        if(annotater.Count >= 10) return;
+
+        // add annotate
+        int number = CurrentPageIndex * 10 + n;
+        if(!annotater.Contains(number)){
+            annotater.Add(number);
+            AnnotationRemain.text = annotater.Count + "/10";
+        }
     }
 
     public void ChangePage(int n){
@@ -42,10 +58,16 @@ public class GameMaster : MonoBehaviour
 
     private void SentenceUpdate(){
         foreach(Transform tmp in SentenseBox_Trans){ Destroy(tmp.gameObject); }
+
+        int counter = 0;
         foreach(Dataset data in Datasets){
             if(data.target == CurrentPageIndex){
                 GameObject tmp = Instantiate(SentenceCard_Prefab, SentenseBox_Trans);
                 tmp.GetComponentInChildren<Text>().text = data.text;
+                tmp.GetComponent<CardCtrl>().gm = this;
+                tmp.GetComponent<CardCtrl>().CardNumber = counter;
+
+                counter++;
             }
         }
     }
