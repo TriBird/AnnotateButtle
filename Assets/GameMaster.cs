@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
+using DG.Tweening;
+using System.Diagnostics;
 
 public class GameMaster : MonoBehaviour
 {
@@ -22,10 +24,9 @@ public class GameMaster : MonoBehaviour
     }
 
     public GameObject SentenceCard_Prefab;
-    public Transform SentenseBox_Trans, DragObj_Trans;
-    public AnnoFieldCtrl annofield_ctrl;
+    public Transform SentenseBox_Trans, DragObj_Trans, Train_Trans, RightBG_Trans;
     public Text AnnotationRemain;
-    
+
     public int CurrentPageIndex = 0;
 
     private List<int> annotater = new List<int>();
@@ -37,6 +38,52 @@ public class GameMaster : MonoBehaviour
         AnnotationRemain.text = annotater.Count + "/10";
         Datasets = OnLoad();
         SentenceUpdate();
+        TrainView(false);
+    }
+
+    public void TrainRun(){
+        // ui masking
+        RightBG_Trans.DOLocalMoveX(0f, 0.3f);
+
+        // string make
+        string csvmake = "";
+        foreach(int a in annotater){
+            csvmake += a + ",";
+        }
+        csvmake = csvmake.Remove(csvmake.Length - 1);
+
+        // save label to csv, then run deep.py
+        string _dataPath = Path.Combine(Application.dataPath, "Resources\\labeled.csv");
+        using (StreamWriter sw = new StreamWriter(_dataPath, false, System.Text.Encoding.GetEncoding("utf-8"))){
+            sw.WriteLine(csvmake);
+        }
+
+        // run deep
+        ProcessStartInfo psInfo = new ProcessStartInfo();
+        psInfo.FileName = @"C:\Users\shige\anaconda3\envs\M1GP\python.exe";
+        psInfo.Arguments = string.Format("\"{0}\" {1}", @"C:\Users\shige\HARPhone\Assets\Python_scr\deep.py", "");
+        psInfo.CreateNoWindow = true;
+        psInfo.UseShellExecute = false;
+        psInfo.RedirectStandardOutput = true;
+        Process p = Process.Start(psInfo); 
+
+        print(p.StandardOutput.ReadLine());
+    }
+
+    public void TrainView(bool isView){
+        if(isView){
+            Train_Trans.Find("Mask").GetComponent<Image>().fillAmount = 1;
+            Train_Trans.gameObject.SetActive(true);
+
+            DOVirtual.DelayedCall(0.5f, ()=>{
+                //DOVirtual.Float(from, to, duration, onUpdate)
+                DOVirtual.Float(1f, 0f, 0.5f, value => {
+                    Train_Trans.Find("Mask").GetComponent<Image>().fillAmount = value;
+                });
+            });
+        } else {
+            Train_Trans.gameObject.SetActive(false);
+        }
     }
 
     public bool Annotate(int n){
@@ -50,6 +97,10 @@ public class GameMaster : MonoBehaviour
             AnnotationRemain.text = annotater.Count + "/10";
         }
 
+        if(annotater.Count >= 10){
+            TrainView(true);
+        }
+
         return true;
     }
 
@@ -59,6 +110,7 @@ public class GameMaster : MonoBehaviour
             annotater.Remove(number);
             AnnotationRemain.text = annotater.Count + "/10";
         }
+        TrainView(false);
     }
 
     public void ChangePage(int n){
@@ -80,7 +132,8 @@ public class GameMaster : MonoBehaviour
                 // isSelected...?
                 int number = CurrentPageIndex * 10 + counter;
                 if(annotater.Contains(number)){
-                    tmp.GetComponent<CardCtrl>().OnPointerClick(null);
+                    tmp.GetComponent<Image>().color = new Color32(0xac, 0x53, 0x53, 0xff);
+                    tmp.GetComponent<CardCtrl>().isSelected = true;
                 }
 
                 counter++;
