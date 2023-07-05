@@ -25,6 +25,7 @@ public class GameMaster : MonoBehaviour
 
     public GameObject SentenceCard_Prefab;
     public Transform SentenseBox_Trans, DragObj_Trans, Train_Trans, RightBG_Trans;
+    public Transform Label_Trans, Category_Trans, AnnoRemain_Trans;
     public Text AnnotationRemain;
 
     public int CurrentPageIndex = 0;
@@ -43,7 +44,13 @@ public class GameMaster : MonoBehaviour
 
     public void TrainRun(){
         // ui masking
-        RightBG_Trans.DOLocalMoveX(0f, 0.3f);
+        RightBG_Trans.DOLocalMoveX(260f, 0.3f);
+        Train_Trans.gameObject.SetActive(false);
+
+        Sequence seq = DOTween.Sequence();
+        seq.Insert(0, Label_Trans.DOLocalMoveX(-1200f, 0.3f));
+        seq.Insert(0.1f, Category_Trans.DOLocalMoveX(-1200f, 0.3f));
+        seq.Insert(0.2f, AnnoRemain_Trans.DOLocalMoveX(-1200f, 0.3f));
 
         // string make
         string csvmake = "";
@@ -59,6 +66,10 @@ public class GameMaster : MonoBehaviour
         }
 
         // run deep
+        ConnectPython();
+    }
+
+    private void ConnectPython(){
         ProcessStartInfo psInfo = new ProcessStartInfo();
         psInfo.FileName = @"C:\Users\shige\anaconda3\envs\M1GP\python.exe";
         psInfo.Arguments = string.Format("\"{0}\" {1}", @"C:\Users\shige\HARPhone\Assets\Python_scr\deep.py", "");
@@ -66,8 +77,9 @@ public class GameMaster : MonoBehaviour
         psInfo.UseShellExecute = false;
         psInfo.RedirectStandardOutput = true;
         Process p = Process.Start(psInfo); 
-
-        print(p.StandardOutput.ReadLine());
+        DOVirtual.DelayedCall(3, ()=>{
+            print(p.StandardOutput.ReadLine());
+        });
     }
 
     public void TrainView(bool isView){

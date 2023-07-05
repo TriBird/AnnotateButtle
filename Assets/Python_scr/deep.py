@@ -27,8 +27,6 @@ for index, row in datasets.iterrows():
 	X.append(row[0]["embed"])
 	y.append(clf.predict([row[0]["embed"]])[0])
 
-# print(y)
-
 # model load and train 
 from sklearn.neural_network import MLPClassifier
 clf = MLPClassifier(max_iter=10000, random_state=0)
