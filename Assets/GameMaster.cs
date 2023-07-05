@@ -25,8 +25,8 @@ public class GameMaster : MonoBehaviour
 
     public GameObject SentenceCard_Prefab;
     public Transform SentenseBox_Trans, DragObj_Trans, Train_Trans, RightBG_Trans;
-    public Transform Label_Trans, Category_Trans, AnnoRemain_Trans;
-    public Text AnnotationRemain;
+    public Transform Label_Trans, Category_Trans, AnnoRemain_Trans, Result_Trans;
+    public Text AnnotationRemain, PlayerResult_Txt, AIResult_Txt;
 
     public int CurrentPageIndex = 0;
 
@@ -36,6 +36,7 @@ public class GameMaster : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Result_Trans.gameObject.SetActive(false);
         AnnotationRemain.text = annotater.Count + "/10";
         Datasets = OnLoad();
         SentenceUpdate();
@@ -51,6 +52,9 @@ public class GameMaster : MonoBehaviour
         seq.Insert(0, Label_Trans.DOLocalMoveX(-1200f, 0.3f));
         seq.Insert(0.1f, Category_Trans.DOLocalMoveX(-1200f, 0.3f));
         seq.Insert(0.2f, AnnoRemain_Trans.DOLocalMoveX(-1200f, 0.3f));
+        seq.OnComplete(()=>{
+            Result_Trans.gameObject.SetActive(true);
+        });
 
         // string make
         string csvmake = "";
@@ -66,10 +70,11 @@ public class GameMaster : MonoBehaviour
         }
 
         // run deep
-        ConnectPython();
+        ConnectPython_Deep();
+        ConnectPython_AI();
     }
 
-    private void ConnectPython(){
+    private void ConnectPython_Deep(){
         ProcessStartInfo psInfo = new ProcessStartInfo();
         psInfo.FileName = @"C:\Users\shige\anaconda3\envs\M1GP\python.exe";
         psInfo.Arguments = string.Format("\"{0}\" {1}", @"C:\Users\shige\HARPhone\Assets\Python_scr\deep.py", "");
@@ -78,7 +83,20 @@ public class GameMaster : MonoBehaviour
         psInfo.RedirectStandardOutput = true;
         Process p = Process.Start(psInfo); 
         DOVirtual.DelayedCall(3, ()=>{
-            print(p.StandardOutput.ReadLine());
+            PlayerResult_Txt.text = "your accuracy: " + p.StandardOutput.ReadLine() + "%";
+        });
+    }
+
+    private void ConnectPython_AI(){
+        ProcessStartInfo psInfo = new ProcessStartInfo();
+        psInfo.FileName = @"C:\Users\shige\anaconda3\envs\M1GP\python.exe";
+        psInfo.Arguments = string.Format("\"{0}\" {1}", @"C:\Users\shige\HARPhone\Assets\Python_scr\deep_AI.py", "");
+        psInfo.CreateNoWindow = true;
+        psInfo.UseShellExecute = false;
+        psInfo.RedirectStandardOutput = true;
+        Process p = Process.Start(psInfo); 
+        DOVirtual.DelayedCall(3, ()=>{
+            AIResult_Txt.text = " AI  accuracy: " + p.StandardOutput.ReadLine() + "%";
         });
     }
 
