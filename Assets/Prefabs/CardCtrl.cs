@@ -37,7 +37,16 @@ public class CardCtrl : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         // throw new System.NotImplementedException();
-        gm.Annotate_del(CardNumber);
-        transform.GetComponent<Image>().color = new Color32(0xF5, 0xEF, 0xE7, 0xff);
+        if(isSelected){
+            gm.Annotate_del(CardNumber);
+            transform.GetComponent<Image>().color = new Color32(0xF5, 0xEF, 0xE7, 0xff);
+            isSelected = false;
+        } else {
+            if(gm.Annotate(CardNumber)){
+                transform.GetComponent<Image>().color = new Color32(0xac, 0x53, 0x53, 0xff);
+                isSelected = true;
+            }
+        }
+
     }
 }
