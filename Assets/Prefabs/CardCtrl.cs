@@ -43,7 +43,7 @@ public class CardCtrl : MonoBehaviour, IPointerClickHandler
             isSelected = false;
         } else {
             if(gm.Annotate(CardNumber)){
-                transform.GetComponent<Image>().color = new Color32(0xac, 0x53, 0x53, 0xff);
+                transform.GetComponent<Image>().color = new Color32(0xE0, 0x93, 0x91, 0xff);
                 isSelected = true;
             }
         }

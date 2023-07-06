@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.IO;
 using DG.Tweening;
@@ -30,6 +31,8 @@ public class GameMaster : MonoBehaviour
     public Text AnnotationRemain, PlayerResult_Txt, AIResult_Txt;
 
     public int CurrentPageIndex = 0;
+    public float player_score = 0;
+    public float ai_score = 0;
 
     private List<int> annotater = new List<int>();
     private List<Dataset> Datasets = new List<Dataset>();
@@ -50,6 +53,7 @@ public class GameMaster : MonoBehaviour
         Train_Trans.gameObject.SetActive(false);
         AIlabelSciew_Trans.gameObject.SetActive(false);
         AIlabel_Trans.gameObject.SetActive(false);
+        Progress_Trans.Find("done").gameObject.SetActive(false);
 
         foreach(Transform tmp in AIlabelSciew_Trans.Find("Viewport/Content")){ Destroy(tmp.gameObject); }
 
@@ -75,6 +79,9 @@ public class GameMaster : MonoBehaviour
                     GameObject obj = Instantiate(AI_Annotated_Prefab, AIlabelSciew_Trans.Find("Viewport/Content"));
                     obj.GetComponentInChildren<Text>().text = Datasets[int.Parse(s)].text;
                 }
+
+                // progress
+                Progress_Trans.Find("done").gameObject.SetActive(true);
             });
         });
 
@@ -106,6 +113,15 @@ public class GameMaster : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         AIlabel_Trans.gameObject.SetActive(true);
         AIlabelSciew_Trans.gameObject.SetActive(true);
+
+        if(player_score < ai_score){
+            PlayerResult_Txt.transform.Find("Lose").gameObject.SetActive(true);
+        } else if(player_score > ai_score){
+            PlayerResult_Txt.transform.Find("Win").gameObject.SetActive(true);
+        } else {
+            PlayerResult_Txt.transform.Find("Draw").gameObject.SetActive(true);
+        }
+
         yield break;
     }
 
@@ -118,7 +134,8 @@ public class GameMaster : MonoBehaviour
         psInfo.RedirectStandardOutput = true;
         Process p = Process.Start(psInfo); 
         DOVirtual.DelayedCall(3, ()=>{
-            PlayerResult_Txt.text = "Your accuracy: " + p.StandardOutput.ReadLine() + "<b>%</b>";
+            player_score = float.Parse(p.StandardOutput.ReadLine());
+            PlayerResult_Txt.text = "Your accuracy: " + player_score + "<b>%</b>";
         });
     }
 
@@ -131,7 +148,8 @@ public class GameMaster : MonoBehaviour
         psInfo.RedirectStandardOutput = true;
         Process p = Process.Start(psInfo); 
         DOVirtual.DelayedCall(3, ()=>{
-            AIResult_Txt.text = " AI   accuracy: " + p.StandardOutput.ReadLine() + "<b>%</b>";
+            ai_score = float.Parse(p.StandardOutput.ReadLine());
+            AIResult_Txt.text = " AI   accuracy: " + ai_score + "<b>%</b>";
         });
     }
 
@@ -181,6 +199,10 @@ public class GameMaster : MonoBehaviour
     public void ChangePage(int n){
         CurrentPageIndex = n;
         SentenceUpdate();
+    }
+
+    public void Retry(){
+        SceneManager.LoadScene("SampleScene");
     }
 
     private void SentenceUpdate(){
