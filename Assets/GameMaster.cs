@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.IO;
 using DG.Tweening;
@@ -23,12 +24,15 @@ public class GameMaster : MonoBehaviour
         public float[] embed;
     }
 
-    public GameObject SentenceCard_Prefab;
+    public GameObject SentenceCard_Prefab, AI_Annotated_Prefab;
     public Transform SentenseBox_Trans, DragObj_Trans, Train_Trans, RightBG_Trans;
-    public Transform Label_Trans, Category_Trans, AnnoRemain_Trans, Result_Trans;
+    public Transform Label_Trans, Category_Trans, AnnoRemain_Trans, Result_Trans, Progress_Trans;
+    public Transform AIlabel_Trans, AIlabelSciew_Trans;
     public Text AnnotationRemain, PlayerResult_Txt, AIResult_Txt;
 
     public int CurrentPageIndex = 0;
+    public float player_score = 0;
+    public float ai_score = 0;
 
     private List<int> annotater = new List<int>();
     private List<Dataset> Datasets = new List<Dataset>();
@@ -47,6 +51,11 @@ public class GameMaster : MonoBehaviour
         // ui masking
         RightBG_Trans.DOLocalMoveX(260f, 0.3f);
         Train_Trans.gameObject.SetActive(false);
+        AIlabelSciew_Trans.gameObject.SetActive(false);
+        AIlabel_Trans.gameObject.SetActive(false);
+        Progress_Trans.Find("done").gameObject.SetActive(false);
+
+        foreach(Transform tmp in AIlabelSciew_Trans.Find("Viewport/Content")){ Destroy(tmp.gameObject); }
 
         Sequence seq = DOTween.Sequence();
         seq.Insert(0, Label_Trans.DOLocalMoveX(-1200f, 0.3f));
@@ -54,6 +63,26 @@ public class GameMaster : MonoBehaviour
         seq.Insert(0.2f, AnnoRemain_Trans.DOLocalMoveX(-1200f, 0.3f));
         seq.OnComplete(()=>{
             Result_Trans.gameObject.SetActive(true);
+            PlayerResult_Txt.transform.gameObject.SetActive(false);
+            AIResult_Txt.transform.gameObject.SetActive(false);
+
+            DOVirtual.Float(0f, 1f, 5f, value => {
+                Progress_Trans.GetComponent<Image>().fillAmount = value;
+            }).OnComplete(()=>{
+                StartCoroutine(ResultShows());
+
+                // read csv 53 implementation
+                StringReader reader = new StringReader(Resources.Load<TextAsset>("labeled_ai").text);
+                string[] arr = reader.ReadLine().Split(',');
+                foreach(string s in arr){
+                    // make ai annotated
+                    GameObject obj = Instantiate(AI_Annotated_Prefab, AIlabelSciew_Trans.Find("Viewport/Content"));
+                    obj.GetComponentInChildren<Text>().text = Datasets[int.Parse(s)].text;
+                }
+
+                // progress
+                Progress_Trans.Find("done").gameObject.SetActive(true);
+            });
         });
 
         // string make
@@ -74,6 +103,28 @@ public class GameMaster : MonoBehaviour
         ConnectPython_AI();
     }
 
+    private IEnumerator ResultShows(){
+        yield return new WaitForSeconds(0.5f);
+        PlayerResult_Txt.transform.gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        AIResult_Txt.transform.gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        PlayerResult_Txt.transform.gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        AIlabel_Trans.gameObject.SetActive(true);
+        AIlabelSciew_Trans.gameObject.SetActive(true);
+
+        if(player_score < ai_score){
+            PlayerResult_Txt.transform.Find("Lose").gameObject.SetActive(true);
+        } else if(player_score > ai_score){
+            PlayerResult_Txt.transform.Find("Win").gameObject.SetActive(true);
+        } else {
+            PlayerResult_Txt.transform.Find("Draw").gameObject.SetActive(true);
+        }
+
+        yield break;
+    }
+
     private void ConnectPython_Deep(){
         ProcessStartInfo psInfo = new ProcessStartInfo();
         psInfo.FileName = @"C:\Users\shige\anaconda3\envs\M1GP\python.exe";
@@ -83,7 +134,8 @@ public class GameMaster : MonoBehaviour
         psInfo.RedirectStandardOutput = true;
         Process p = Process.Start(psInfo); 
         DOVirtual.DelayedCall(3, ()=>{
-            PlayerResult_Txt.text = "your accuracy: " + p.StandardOutput.ReadLine() + "%";
+            player_score = float.Parse(p.StandardOutput.ReadLine());
+            PlayerResult_Txt.text = "Your accuracy: " + player_score + "<b>%</b>";
         });
     }
 
@@ -96,7 +148,8 @@ public class GameMaster : MonoBehaviour
         psInfo.RedirectStandardOutput = true;
         Process p = Process.Start(psInfo); 
         DOVirtual.DelayedCall(3, ()=>{
-            AIResult_Txt.text = " AI  accuracy: " + p.StandardOutput.ReadLine() + "%";
+            ai_score = float.Parse(p.StandardOutput.ReadLine());
+            AIResult_Txt.text = " AI   accuracy: " + ai_score + "<b>%</b>";
         });
     }
 
@@ -146,6 +199,10 @@ public class GameMaster : MonoBehaviour
     public void ChangePage(int n){
         CurrentPageIndex = n;
         SentenceUpdate();
+    }
+
+    public void Retry(){
+        SceneManager.LoadScene("SampleScene");
     }
 
     private void SentenceUpdate(){
