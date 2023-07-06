@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
+from sklearn.calibration import CalibratedClassifierCV
 
 # labeled infomation
 labeld_index = []
@@ -26,15 +27,15 @@ for index, row in datasets.iterrows():
 before_clf = MLPClassifier(max_iter=10000, random_state=0)
 before_clf.fit(X_annotate, y_annotate)
 
+calib_clf = CalibratedClassifierCV(before_clf, method="sigmoid", cv="prefit")
+calib_clf.fit(X_annotate, y_annotate)
+
 # predict
 problist = []
 for index, row in datasets.iterrows():
-    problist.append((index, before_clf.predict_proba(np.array(row[0]["embed"]).reshape(1, -1))[0][row[0]["target"]]))
+    problist.append((index, calib_clf.predict_proba(np.array(row[0]["embed"]).reshape(1, -1))[0][row[0]["target"]]))
 
 problist = sorted(problist, key=lambda x: x[1])
-
-# temperature scaling
-
 
 # add label
 index = 0
