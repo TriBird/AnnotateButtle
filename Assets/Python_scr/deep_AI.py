@@ -1,5 +1,6 @@
 
 import random
+import csv
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -31,6 +32,9 @@ for index, row in datasets.iterrows():
     problist.append((index, before_clf.predict_proba(np.array(row[0]["embed"]).reshape(1, -1))[0][row[0]["target"]]))
 
 problist = sorted(problist, key=lambda x: x[1])
+
+# temperature scaling
+
 
 # add label
 index = 0
@@ -75,3 +79,8 @@ for index, row in datasets.iterrows():
 		correct += 1
 
 print(correct / len(datasets) * 100)
+
+f = open('C:\\Users\\shige\\HARPhone\\Assets\\Resources\\labeled_ai.csv', 'w')
+writer = csv.writer(f)
+writer.writerow(labeld_index)
+f.close()
