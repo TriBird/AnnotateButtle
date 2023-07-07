@@ -18,22 +18,6 @@ public class CardCtrl : MonoBehaviour, IPointerClickHandler
 
     }
 
-    // private void OnMouseDrag()
-    // {
-    //     gm.DragObj_Trans.gameObject.SetActive(true);
-    // }
-
-    // public void OnMouseUp()
-    // {
-    //     gm.DragObj_Trans.gameObject.SetActive(false);
-
-    //     if(gm.annofield_ctrl.is_touch){
-    //         if(gm.Annotate(CardNumber)){
-    //             transform.GetComponent<Image>().color = new Color32(0xac, 0x53, 0x53, 0xff);
-    //         }
-    //     }
-    // }
-
     public void OnPointerClick(PointerEventData eventData)
     {
         // throw new System.NotImplementedException();

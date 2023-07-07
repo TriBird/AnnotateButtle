@@ -24,6 +24,13 @@ public class GameMaster : MonoBehaviour
         public float[] embed;
     }
 
+    [System.Serializable]
+    public class EnvValue{
+        public string anaconda_python_path = "";
+        public string deep_player_path = "";
+        public string deep_AI_path = "";
+    }
+
     public GameObject SentenceCard_Prefab, AI_Annotated_Prefab;
     public Transform SentenseBox_Trans, DragObj_Trans, Train_Trans, RightBG_Trans;
     public Transform Label_Trans, Category_Trans, AnnoRemain_Trans, Result_Trans, Progress_Trans;
@@ -49,9 +56,11 @@ public class GameMaster : MonoBehaviour
         "..."
     };
 
+    private EnvValue enval = null;
+
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
+        EnvReading();
         Result_Trans.gameObject.SetActive(false);
         GameOver_Trans.gameObject.SetActive(false);
         AnnotationRemain.text = annotater.Count + "/10";
@@ -59,6 +68,14 @@ public class GameMaster : MonoBehaviour
         SentenceUpdate();
         TrainView(false);
         MrUedaUpdate();
+    }
+
+    public void EnvReading(){
+        string _dataPath = Path.Combine(Application.dataPath, "Resources\\env.json");
+        if (!File.Exists(_dataPath)) return;
+
+        var json = File.ReadAllText(_dataPath);
+        enval = JsonUtility.FromJson<EnvValue>(json);
     }
 
     public void TrainRun(){
@@ -141,8 +158,8 @@ public class GameMaster : MonoBehaviour
 
     private void ConnectPython_Deep(){
         ProcessStartInfo psInfo = new ProcessStartInfo();
-        psInfo.FileName = @"C:\Users\shige\anaconda3\envs\M1GP\python.exe";
-        psInfo.Arguments = string.Format("\"{0}\" {1}", @"C:\Users\shige\HARPhone\Assets\Python_scr\deep.py", "");
+        psInfo.FileName = enval.anaconda_python_path;
+        psInfo.Arguments = string.Format("\"{0}\" {1}", enval.deep_player_path, "");
         psInfo.CreateNoWindow = true;
         psInfo.UseShellExecute = false;
         psInfo.RedirectStandardOutput = true;
@@ -155,8 +172,8 @@ public class GameMaster : MonoBehaviour
 
     private void ConnectPython_AI(){
         ProcessStartInfo psInfo = new ProcessStartInfo();
-        psInfo.FileName = @"C:\Users\shige\anaconda3\envs\M1GP\python.exe";
-        psInfo.Arguments = string.Format("\"{0}\" {1}", @"C:\Users\shige\HARPhone\Assets\Python_scr\deep_AI.py", "");
+        psInfo.FileName = enval.anaconda_python_path;
+        psInfo.Arguments = string.Format("\"{0}\" {1}", enval.deep_AI_path, "");
         psInfo.CreateNoWindow = true;
         psInfo.UseShellExecute = false;
         psInfo.RedirectStandardOutput = true;

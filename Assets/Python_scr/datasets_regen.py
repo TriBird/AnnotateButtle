@@ -2,7 +2,8 @@ import openai
 import pandas as pd
 import json
 
-openai.api_key = "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"
+with open('Assets\\Python_scr\\apikey.txt') as f:
+    openai.api_key = f.read()
 
 def ask():
     response = openai.ChatCompletion.create(
