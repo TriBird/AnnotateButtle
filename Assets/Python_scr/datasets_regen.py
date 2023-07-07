@@ -45,6 +45,8 @@ for i, d in enumerate(datas):
 
 datas_df = pd.DataFrame(datas_fordf, columns=["target", "text", "embed"])
 
+print(datas_df)
+
 path = 'Assets\\Resources\\datasets_auto.json'
 json_str = "{\"datasets\":" + datas_df.to_json(orient="records") + "}"
 

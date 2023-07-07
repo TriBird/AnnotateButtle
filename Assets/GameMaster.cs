@@ -27,24 +27,38 @@ public class GameMaster : MonoBehaviour
     public GameObject SentenceCard_Prefab, AI_Annotated_Prefab;
     public Transform SentenseBox_Trans, DragObj_Trans, Train_Trans, RightBG_Trans;
     public Transform Label_Trans, Category_Trans, AnnoRemain_Trans, Result_Trans, Progress_Trans;
-    public Transform AIlabel_Trans, AIlabelSciew_Trans;
-    public Text AnnotationRemain, PlayerResult_Txt, AIResult_Txt;
+    public Transform AIlabel_Trans, AIlabelSciew_Trans, GameOver_Trans;
+    public Text AnnotationRemain, PlayerResult_Txt, AIResult_Txt, MrUedaScript_Txt;
+    public Image MrUedaIndicator_Image;
+
+    public List<Sprite> MrUedaSprites = new List<Sprite>();
 
     public int CurrentPageIndex = 0;
     public float player_score = 0;
     public float ai_score = 0;
 
+    private bool isAnnotateEnable = true;
+
     private List<int> annotater = new List<int>();
     private List<Dataset> Datasets = new List<Dataset>();
+    private List<string> MrUedaScript = new List<string>(){
+        "Ask me anything!",
+        "This sentense is about ...",
+        "Could you shut up for a sec?",
+        "I don't want to annotate.",
+        "..."
+    };
 
     // Start is called before the first frame update
     void Start()
     {
         Result_Trans.gameObject.SetActive(false);
+        GameOver_Trans.gameObject.SetActive(false);
         AnnotationRemain.text = annotater.Count + "/10";
         Datasets = OnLoad();
         SentenceUpdate();
         TrainView(false);
+        MrUedaUpdate();
     }
 
     public void TrainRun(){
@@ -169,7 +183,30 @@ public class GameMaster : MonoBehaviour
         }
     }
 
+    public void MrUedaUpdate(){
+         if(annotater.Count == 0){
+            MrUedaIndicator_Image.sprite = MrUedaSprites[0];
+            MrUedaScript_Txt.text = MrUedaScript[0];
+        } else {
+            MrUedaIndicator_Image.sprite = MrUedaSprites[Mathf.FloorToInt((annotater.Count-1)/2f)];
+            MrUedaScript_Txt.text = MrUedaScript[Mathf.FloorToInt((annotater.Count-1)/2f)];
+        }
+    }
+
     public bool Annotate(int n){
+        // gameover
+        if(annotater.Count == 10){
+            GameOver_Trans.gameObject.SetActive(true);
+
+            Sequence seq = DOTween.Sequence();
+            seq.Insert(0, Label_Trans.DOLocalMoveX(-1200f, 0.3f));
+            seq.Insert(0.1f, Category_Trans.DOLocalMoveX(-1200f, 0.3f));
+            seq.Insert(0.2f, AnnoRemain_Trans.DOLocalMoveX(-1200f, 0.3f));
+            seq.Insert(0.3f, Train_Trans.DOLocalMoveX(-1200f, 0.3f));
+
+            return false;
+        }
+
         // limited annotate
         if(annotater.Count >= 10) return false;
 
@@ -178,11 +215,11 @@ public class GameMaster : MonoBehaviour
         if(!annotater.Contains(number)){
             annotater.Add(number);
             AnnotationRemain.text = annotater.Count + "/10";
+
+           MrUedaUpdate();
         }
 
-        if(annotater.Count >= 10){
-            TrainView(true);
-        }
+        TrainView(annotater.Count >= 1);
 
         return true;
     }
@@ -192,8 +229,11 @@ public class GameMaster : MonoBehaviour
         if(annotater.Contains(number)){
             annotater.Remove(number);
             AnnotationRemain.text = annotater.Count + "/10";
+
+            MrUedaUpdate();
         }
-        TrainView(false);
+
+        TrainView(annotater.Count >= 1);
     }
 
     public void ChangePage(int n){
