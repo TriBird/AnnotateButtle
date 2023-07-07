@@ -8,7 +8,7 @@ from sklearn.neural_network import MLPClassifier
 labeld_index = pd.read_csv('Assets\\Resources\\labeled.csv', header=None).values.tolist()[0]
 
 # dataset make for self-train
-datasets = pd.read_json('Assets\\Resources\\datasets.json')
+datasets = pd.read_json('Assets\\Resources\\datasets_auto.json')
 X_annotate = []
 y_annotate = []
 for index, row in datasets.iterrows():
@@ -17,7 +17,7 @@ for index, row in datasets.iterrows():
 		y_annotate.append(row[0]["target"])
 
 # self-train
-clf = MLPClassifier(max_iter=10000, random_state=0)
+clf = MLPClassifier(hidden_layer_sizes=8, max_iter=10000, random_state=0)
 clf.fit(X_annotate, y_annotate)
 
 # labeling
@@ -29,7 +29,7 @@ for index, row in datasets.iterrows():
 
 # model load and train 
 from sklearn.neural_network import MLPClassifier
-clf = MLPClassifier(max_iter=10000, random_state=0)
+clf = MLPClassifier(hidden_layer_sizes=8, max_iter=10000, random_state=0)
 clf.fit(X, y)
 
 correct = 0
