@@ -16,7 +16,7 @@ labeld_index.append(random.randint(30, 39))
 labeld_index.append(random.randint(40, 49))
 
 # dataset make for self-train
-datasets = pd.read_json('Assets\\Resources\\datasets.json')
+datasets = pd.read_json('Assets\\Resources\\datasets_auto.json')
 X_annotate = []
 y_annotate = []
 for index, row in datasets.iterrows():
@@ -24,7 +24,7 @@ for index, row in datasets.iterrows():
 		X_annotate.append(row[0]["embed"])
 		y_annotate.append(row[0]["target"])
 
-before_clf = MLPClassifier(max_iter=10000, random_state=0)
+before_clf = MLPClassifier(hidden_layer_sizes=8, max_iter=10000, random_state=0)
 before_clf.fit(X_annotate, y_annotate)
 
 calib_clf = CalibratedClassifierCV(before_clf, method="sigmoid", cv="prefit")
@@ -59,7 +59,7 @@ for index, row in datasets.iterrows():
 		y_annotate.append(row[0]["target"])
 
 # self-train
-clf = MLPClassifier(max_iter=10000, random_state=0)
+clf = MLPClassifier(hidden_layer_sizes=8, max_iter=10000, random_state=0)
 clf.fit(X_annotate, y_annotate)
 
 # labeling

@@ -219,7 +219,7 @@ public class GameMaster : MonoBehaviour
                 // isSelected...?
                 int number = CurrentPageIndex * 10 + counter;
                 if(annotater.Contains(number)){
-                    tmp.GetComponent<Image>().color = new Color32(0xac, 0x53, 0x53, 0xff);
+                    tmp.GetComponent<Image>().color = new Color32(0xe0, 0x93, 0x91, 0xff);
                     tmp.GetComponent<CardCtrl>().isSelected = true;
                 }
 
@@ -230,7 +230,7 @@ public class GameMaster : MonoBehaviour
 
     private List<Dataset> OnLoad()
     {
-        string _dataPath = Path.Combine(Application.dataPath, "Resources\\datasets.json");
+        string _dataPath = Path.Combine(Application.dataPath, "Resources\\datasets_auto.json");
         if (!File.Exists(_dataPath)) return null;
 
         var json = File.ReadAllText(_dataPath);
